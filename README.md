@@ -1,12 +1,228 @@
-# Introduction
+# Notification System (NS)
 
-Technologies enter the human life through all doors, People daily use smartphones, social media and smart equipment in their homes and work. So they will always need to know everything that happens around them. The notifications become more powerful by the time, it inform us about something wrong, remained us to do scheduled work, tell us something new we need-to-know.
+A comprehensive Java-based notification system that provides a RESTful API for managing and sending notifications across multiple platforms. The system supports SMS, email, web socket, and social media notifications with template management, user roles, and priority-based queuing.
 
-Although notifications are in our needs, sometimes it becomes more annoying when it works in a wrong way, the notification system should send the notification in the right time when it is useful, to the right person how needs the notification and through the right way where the notification is acceptable.
-Our notification system provides an open API to integrate with multi-platforms to send and receive the notification easily. The notification has template designed by the admin user and contains list of contacts to send them the notification, the template also has dynamic content and could be scheduled for remaindering purpose.
-The system consider many features in order to send the notification such as priority of the notification, availability, reliability, escalation and scheduled roasters.
-The open API is easy to use when you need to control your templates, modify your contacts information and of course send/receive the notification.
-Receiving the notifications could be through mobile app, desktop app, websites, social media and indoor/outdoor intelligent circuits.
+## Table of Contents
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Setup Instructions](#setup-instructions)
+- [Configuration](#configuration)
+- [API Endpoints](#api-endpoints)
+- [Usage](#usage)
+- [Contributing](#contributing)
+
+## Features
+
+- **Multi-Platform Notifications**: Send notifications via SMS, Email, Web Sockets, and Social Media
+- **Template Management**: Create and manage notification templates with dynamic content
+- **User Role Management**: Admin and client roles with different privileges
+- **Priority Queuing**: Three-tier priority system for notification processing
+- **Scheduling & Escalation**: Schedule notifications and escalate through alternative channels
+- **Response Analytics**: Track user response patterns to optimize delivery timing
+- **Web Interface**: Admin panel for system management
+- **RESTful API**: Easy integration with external systems
+- **Real-time Notifications**: WebSocket support for instant notifications
+
+## Project Structure
+
+```
+ns-project/
+├── src/
+│   ├── api/                          # RESTful API endpoints
+│   │   ├── NotificationAPI.java      # Notification management API
+│   │   ├── TemplateAPI.java          # Template management API
+│   │   ├── UserAPI.java              # User management API
+│   │   └── Test_api.java             # API testing utilities
+│   ├── Controller/                   # Business logic controllers
+│   │   ├── C_Notification.java       # Notification controller
+│   │   ├── C_Template.java           # Template controller
+│   │   ├── C_User.java               # User controller
+│   │   ├── C_Group.java              # Group management
+│   │   └── ...                       # Other controllers
+│   ├── model/                        # Data models
+│   │   ├── Ns_Notification.java      # Notification entity
+│   │   ├── Ns_User.java              # User entity
+│   │   ├── NotTemplate.java          # Template entity
+│   │   └── ...                       # Other entities
+│   ├── DBA/                          # Database access layer
+│   │   └── MysqlConnection.java      # MySQL connection manager
+│   ├── Notification_Management/      # Core notification logic
+│   │   ├── Notification_manage.java  # Notification processing
+│   │   ├── Mail.java                 # Email service
+│   │   ├── SendSMS.java              # SMS service
+│   │   ├── PushNotification.java     # Push notification service
+│   │   └── ServerStart.java          # Server initialization
+│   ├── UserManagement/               # User management utilities
+│   ├── Group_Management/             # Group management utilities
+│   ├── Template_management/          # Template management utilities
+│   ├── Setting_Management/           # System settings management
+│   └── Site/                         # Web interface servlets
+│       ├── SignInUser.java           # User authentication
+│       ├── SignUpUser.java           # User registration
+│       ├── AddTemplate.java          # Template creation
+│       └── ...                       # Other servlets
+├── WebContent/                       # Web application files
+│   ├── *.jsp                         # JSP pages for admin interface
+│   ├── css/                          # Stylesheets
+│   ├── js/                           # JavaScript files
+│   ├── images/                       # Static images
+│   ├── META-INF/                     # Metadata
+│   └── WEB-INF/
+│       └── web.xml                   # Web application configuration
+└── README.md
+```
+
+## Requirements
+
+### System Requirements
+- **Java**: JDK 8 or higher
+- **Application Server**: Apache Tomcat 8.5+ or similar Java EE container
+- **Database**: MySQL 5.7 or higher
+- **Build Tool**: Maven (recommended) or manual dependency management
+
+### Dependencies
+- **JAX-RS**: Jersey framework for RESTful web services
+- **MySQL Connector**: JDBC driver for MySQL database connectivity
+- **Java EE**: Servlet API, JSP support
+- **Optional**: JSON processing libraries for API responses
+
+## Setup Instructions
+
+### 1. Database Setup
+
+1. **Install MySQL** and create a new database:
+```sql
+CREATE DATABASE notificationcenterdb;
+```
+
+2. **Configure Database Connection**: Update the connection details in `src/DBA/MysqlConnection.java`:
+```java
+public static String Connection_string="jdbc:mysql://localhost:3306/notificationcenterdb";
+public static String UserName="your_username";
+public static String Password="your_password";
+```
+
+3. **Create Database Tables**: Execute the SQL scripts to create the required tables for:
+   - Users (`ns_user`)
+   - Templates (`ns_template`)
+   - Notifications (`ns_notification`)
+   - Groups, Contacts, Settings, etc.
+
+### 2. Application Server Setup
+
+1. **Install Apache Tomcat** (version 8.5 or higher)
+
+2. **Configure JDBC Driver**: 
+   - Download MySQL Connector/J
+   - Place `mysql-connector-java-x.x.x.jar` in Tomcat's `lib` directory
+
+3. **Deploy the Application**:
+   - Build the project into a WAR file
+   - Deploy to Tomcat's `webapps` directory
+   - Or use IDE deployment features
+
+### 3. Build and Deployment
+
+#### Option A: Using IDE (Eclipse/IntelliJ)
+1. Import the project as a Dynamic Web Project
+2. Configure build path with required JAR dependencies
+3. Configure server runtime (Tomcat)
+4. Right-click project → Run As → Run on Server
+
+#### Option B: Manual Build
+1. Compile Java sources: `javac -cp "lib/*" src/**/*.java`
+2. Create WAR file with compiled classes and WebContent
+3. Deploy WAR to Tomcat webapps directory
+
+### 4. Required JAR Dependencies
+
+Add these JAR files to your build path:
+- `jersey-server-2.x.x.jar`
+- `jersey-container-servlet-2.x.x.jar`
+- `mysql-connector-java-x.x.x.jar`
+- `javax.servlet-api-x.x.x.jar`
+- Additional Jersey dependencies as needed
+
+## Configuration
+
+### Web Application Configuration
+The main configuration is in `WebContent/WEB-INF/web.xml`:
+- Servlet mapping for Jersey REST services at `/service/*`
+- Welcome file configuration
+- Application display name: "Notification System Server"
+
+### Database Configuration
+Update connection parameters in `MysqlConnection.java`:
+- Database URL
+- Username and password
+- Connection pool settings (if implemented)
+
+### Notification Services Configuration
+Configure external service credentials in respective service classes:
+- SMTP settings for email notifications (`Mail.java`)
+- SMS gateway credentials (`SendSMS.java`)
+- Push notification service keys (`PushNotification.java`)
+
+## API Endpoints
+
+The RESTful API is accessible at `http://localhost:8080/ns-project/service/`
+
+### Notification API (`/templates`)
+- `GET /Response/key={Token}&ID={ID}&code={NotCode}` - Process notification response
+
+### Template API
+- Template creation and management endpoints
+
+### User API  
+- User authentication and management endpoints
+
+*Note: Complete API documentation should be generated from JAX-RS annotations*
+
+## Usage
+
+### 1. Access the Web Interface
+Navigate to `http://localhost:8080/ns-project/` to access the admin panel
+
+### 2. Create Admin Account
+Use the signup functionality to create an admin user account
+
+### 3. Configure Templates
+- Create notification templates with content and contact lists
+- Set priority levels and delivery methods
+- Configure scheduling and escalation rules
+
+### 4. Send Notifications
+- Use the web interface or API endpoints
+- Notifications are processed through priority queues
+- Monitor delivery status and user responses
+
+### 5. API Integration
+Integrate external systems using the RESTful API:
+```java
+// Example API call to send notification response
+GET /service/templates/Response/key=user_token&ID=123&code=ABC123
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
+
+## License
+
+This project is part of a senior project for notification system development.
+
+---
+
+## Technical Documentation
+│   └── WEB-INF/
+│       └── web.xml                   # Web application configuration
+└── README.md
+```
 
 ### Product
 
